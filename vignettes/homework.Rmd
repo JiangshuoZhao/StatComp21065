@@ -1,0 +1,1572 @@
+---
+title: "homework"
+author: "Zhao js"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{homework}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+## R Markdown
+
+
+## Question
+
+Exercises 3.4, 3.11, and 3.20 (pages 94-96, Statistical Computating with R).
+
+## Answer
+
+### 3.4: Using inverse transform method.
+
+Because I can't find a command distribution which has density function $g(x)$
+such that there is a constant $c$ satisfy $f(x) \le cg(x)$, I don't use acceptance-rejection method.
+
+I use inverse transform method to solve the problem.
+
+$$F(x) = P(X \le x) = \int_{-\infty}^x f(t)dt = \int_0^x \frac{t}{\sigma^2} e^{-t^2/(2\sigma^2)} dt
+= \int_0^x -e^{-t^2/(2\sigma^2)} d(-t^2/(2\sigma^2))=(-e^t)|_0^{-x^2/(2\sigma^2)}=1-e^{-x^2/(2\sigma^2)}
+$$
+The inverse function is $F^{-1}(x) = \left( -2\sigma^2 \log(1-x) \right)^{\frac{1}{2}}$.
+
+The algorithm generating  random samples from a Rayleigh($\sigma$) distribution is as follows:
+
+```{r}
+## sigma = 0.1
+n <- 10000
+Sigma <-0.1
+u <- runif(n)
+x <- sqrt(-2 * Sigma^2 * log(1-u))
+hist(x, prob =TRUE, main = expression(sigma==0.1) ) # generated sample mode
+y <- seq(0,0.5, .001)
+lines(y,y/(Sigma^2)*exp(-y^2/(2*Sigma^2))) #the theoretical mode
+```
+```{r}
+## sigma = 0.5
+n <- 10000
+Sigma <-0.5
+u <- runif(n)
+x <- sqrt(-2 * Sigma^2 * log(1-u))
+hist(x, prob =TRUE, main = expression(sigma==0.5) ) # generated sample mode
+y <- seq(0,3, .001)
+lines(y,y/(Sigma^2)*exp(-y^2/(2*Sigma^2))) #the theoretical mode
+```
+```{r}
+## sigma = 1
+n <- 10000
+Sigma <-1
+u <- runif(n)
+x <- sqrt(-2 * Sigma^2 * log(1-u))
+hist(x, prob =TRUE, main = expression(sigma==1) ) # generated sample mode
+y <- seq(0,4, .001)
+lines(y,y/(Sigma^2)*exp(-y^2/(2*Sigma^2))) #the theoretical mode
+```
+As can be seen from the above three graphs, the mode of the generated samples is close to the theoretical mode.
+
+\
+### 3.11: Generate a random sample of size 1000 from a normal location mixture.
+
+The code to generate a random sample of size 1000 from  $N(0,1)$ and $N(3,1)$ distribution with mixing
+probabilities $p_1$ and $p_2 = 1 − p_1$ is as follows.
+
+```{r}
+## p1=0.75
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = rbinom(n,1,0.75)
+x = p1*x1 + (1-p1)*x2
+hist(x,prob =TRUE, main = expression(p1==0.75))
+```
+```{r}
+## p1=0.8
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = rbinom(n,1,0.8)
+x = p1*x1 + (1-p1)*x2
+hist(x,prob =TRUE, main = expression(p1==0.8))
+```
+```{r}
+## p1=0.5
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = rbinom(n,1,0.5)
+x = p1*x1 + (1-p1)*x2
+hist(x,prob =TRUE, main = expression(p1==0.5))
+```
+```{r}
+## p1=0.3
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = rbinom(n,1,0.3)
+x = p1*x1 + (1-p1)*x2
+hist(x,prob =TRUE, main = expression(p1==0.3))
+```
+```{r}
+## p1=0.35
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = rbinom(n,1,0.35)
+x = p1*x1 + (1-p1)*x2
+hist(x,prob =TRUE, main = expression(p1==0.35))
+```
+
+From above figures with various $p_1$, I find that when $p_1>0.75$ or $p_1<0.35$ it doesn't produce bimodal mixtures. Therefore I  conjecture when $0.35 \le p_1 \le 0.75$ it produce bimodal mixtures.
+
+\
+### 3.20: Write a program to simulate a compound Poisson$(\lambda)$ –Gamma process (Y has a Gamma distribution) Estimate the mean and the variance of X(10) for several choices of the parameters and compare with the theoretical values. Hint: Show that $E[X(t)] = λtE[Y_1]$ and $Var(X(t)) = λtE[Y_1^2 ]$.
+
+First, I prove that $E[X(t)] = \lambda t E[Y_1]$ and $Var(X(t)) = \lambda t E[Y_1^2]$
+$proof:$
+
+$$
+E[X(t)]=E[\Sigma_{i=1}^{N(t)}Y_i] = E[N(t)Y_1] = E\{E[N(t)Y_1|N(t)]\} =E\{N(t)E[Y_1]\}
+= E[N(t)]E[Y_1]=\lambda tE[Y_1]\\
+
+Var(X(t)) = E[X^2(t)]-E^2[X(t)] = E\{E[X^2(t)|N(t)]\}-E^2[X(t)]=E\{Var(X(t)|N(t))+E^2[X(t)|N(t)]\}-E^2[X(t)]\\
+=E\{Var(\Sigma_{i=1}^{N(t)}Y_1|N(t))+E^2[\Sigma_{i=1}^{N(t)}Y_1|N(t)]\}-E^2[X(t)]
+= E\{N(t)Var(Y_1)\}+N(t)^2 E^2[Y_1] \}-E^2[X(t)]\\
+=E[N(t)]Var(Y_1)+E[N(t)^2]E^2[Y_1]-E^2[N(t)]E^2[Y_1]=E[N(t)]Var(Y_1)+Var(N(t))E^2[Y_1]=\lambda t Var(Y_1)+\lambda t E^2[Y_1]=\lambda t E[Y_1^2]
+$$
+
+
+```{r}
+n <- 1e4
+t <-10;r <- 1; beta <-1 ; lambda <-1 ;
+N_t <- rpois(n, lambda*t)
+x_t <- rep(0,n)
+for (i in 1:n) {
+  y <- rgamma(N_t[i], r, beta)
+  x_t[i] <- sum(y)
+}
+hist(x_t)
+cat("mean:",mean(x_t))
+cat("variance:",var(x_t))
+#print(mean(x_t))
+#print(var(x_t))
+```
+
+
+
+
+## Question
+
+Exercises 3.4, 3.11, and 3.20 (pages 94-96, Statistical Computating with R).
+
+## Answer
+
+### 3.4: Using inverse transform method.
+
+Because I can't find a command distribution which has density function $g(x)$
+such that there is a constant $c$ satisfy $f(x) \le cg(x)$, I don't use acceptance-rejection method.
+
+I use inverse transform method to solve the problem.
+
+$$F(x) = P(X \le x) = \int_{-\infty}^x f(t)dt = \int_0^x \frac{t}{\sigma^2} e^{-t^2/(2\sigma^2)} dt
+= \int_0^x -e^{-t^2/(2\sigma^2)} d(-t^2/(2\sigma^2))=(-e^t)|_0^{-x^2/(2\sigma^2)}=1-e^{-x^2/(2\sigma^2)}
+$$
+The inverse function is $F^{-1}(x) = \left( -2\sigma^2 \log(1-x) \right)^{\frac{1}{2}}$.
+
+The algorithm generating  random samples from a Rayleigh($\sigma$) distribution is as follows:
+
+```{r}
+## sigma = 0.1
+n <- 10000
+Sigma <-0.1
+u <- runif(n)
+x <- sqrt(-2 * Sigma^2 * log(1-u))
+hist(x, prob =TRUE, main = expression(sigma==0.1) ) # generated sample mode
+y <- seq(0,0.5, .001)
+lines(y,y/(Sigma^2)*exp(-y^2/(2*Sigma^2))) #the theoretical mode
+```
+```{r}
+## sigma = 0.5
+n <- 10000
+Sigma <-0.5
+u <- runif(n)
+x <- sqrt(-2 * Sigma^2 * log(1-u))
+hist(x, prob =TRUE, main = expression(sigma==0.5) ) # generated sample mode
+y <- seq(0,3, .001)
+lines(y,y/(Sigma^2)*exp(-y^2/(2*Sigma^2))) #the theoretical mode
+```
+```{r}
+## sigma = 1
+n <- 10000
+Sigma <-1
+u <- runif(n)
+x <- sqrt(-2 * Sigma^2 * log(1-u))
+hist(x, prob =TRUE, main = expression(sigma==1) ) # generated sample mode
+y <- seq(0,4, .001)
+lines(y,y/(Sigma^2)*exp(-y^2/(2*Sigma^2))) #the theoretical mode
+```
+As can be seen from the above three graphs, the mode of the generated samples is close to the theoretical mode.
+
+
+### 3.11: Generate a random sample of size 1000 from a normal location mixture.
+
+The code to generate a random sample of size 1000 from  $N(0,1)$ and $N(3,1)$ distribution with mixing
+probabilities $p_1$ and $p_2 = 1 − p_1$ is as follows.
+
+```{r}
+## p1=0.75
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = sample(0:1, size = n, replace = TRUE, prob = c(.25, .75))
+x = p1*x1 + (1-p1)*x2 
+hist(x,prob =TRUE, main = expression(p1==0.75))
+```
+```{r}
+## p1=0.8
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = rbinom(n,1,0.8)
+x = p1*x1 + (1-p1)*x2
+hist(x,prob =TRUE, main = expression(p1==0.8))
+```
+```{r}
+## p1=0.5
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = rbinom(n,1,0.5)
+x = p1*x1 + (1-p1)*x2
+hist(x,prob =TRUE, main = expression(p1==0.5))
+```
+```{r}
+## p1=0.3
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = rbinom(n,1,0.3)
+x = p1*x1 + (1-p1)*x2
+hist(x,prob =TRUE, main = expression(p1==0.3))
+```
+```{r}
+## p1=0.35
+n <-1000
+x1 <- rnorm(n)
+x2 <- rnorm(n, 3, 1)
+p1 = rbinom(n,1,0.35)
+x = p1*x1 + (1-p1)*x2
+hist(x,prob =TRUE, main = expression(p1==0.35))
+```
+
+From above figures with various $p_1$, I find that when $p_1>0.75$ or $p_1<0.35$ it doesn't produce bimodal mixtures. Therefore I  conjecture when $0.35 \le p_1 \le 0.75$ it produce bimodal mixtures.
+
+
+### 3.20: Write a program to simulate a compound Poisson$(\lambda)$ –Gamma process (Y has a Gamma distribution) Estimate the mean and the variance of X(10) for several choices of the parameters and compare with the theoretical values. Hint: Show that $E[X(t)] = λtE[Y_1]$ and $Var(X(t)) = λtE[Y_1^2 ]$.
+
+First, I prove that $E[X(t)] = \lambda t E[Y_1]$ and $Var(X(t)) = \lambda t E[Y_1^2]$
+
+$proof:$
+
+\begin{align}
+E[X(t)]= & E[\Sigma_{i=1}^{N(t)}Y_i] = E[N(t)Y_1] = E\{E[N(t)Y_1|N(t)]\} =E\{N(t)E[Y_1]\}
+= E[N(t)]E[Y_1]=\lambda tE[Y_1]\\
+
+Var(X(t)) = & E[X^2(t)]-E^2[X(t)] = E\{E[X^2(t)|N(t)]\}-E^2[X(t)]=E\{Var(X(t)|N(t))+E^2[X(t)|N(t)]\}-E^2[X(t)]\\
+= & E\{Var(\Sigma_{i=1}^{N(t)}Y_1|N(t))+E^2[\Sigma_{i=1}^{N(t)}Y_1|N(t)]\}-E^2[X(t)]
+= E\{N(t)Var(Y_1)\}+N(t)^2 E^2[Y_1] \}-E^2[X(t)]\\
+= & E[N(t)]Var(Y_1)+E[N(t)^2]E^2[Y_1]-E^2[N(t)]E^2[Y_1]=E[N(t)]Var(Y_1)+Var(N(t))E^2[Y_1]\\
+= & \lambda t Var(Y_1)+\lambda t E^2[Y_1]=\lambda t E[Y_1^2]
+\end{align}
+
+```{r}
+## alpha = 1, beta = 1, lambda = 1   
+n <- 1e4
+t <-10;alpha <- 1; beta <-1 ; lambda <-1 ;
+N_t <- rpois(n, lambda*t)
+x_t <- rep(0,n)
+for (i in 1:n) {
+  y <- rgamma(N_t[i], alpha, beta)
+  x_t[i] <- sum(y)
+}
+hist(x_t)
+cat("mean:",mean(x_t))
+cat("variance:",var(x_t))
+```
+The theoretical values of $E[X(t)]$ and $Var(X(t))$ is $E[X(t)]=\lambda t E[Y_1]=\lambda t \alpha/\beta=$ `r lambda*t*alpha/beta` , $Var(X(t))=\lambda t E[Y_1^2]=\lambda t (\alpha^2+\alpha)/\beta^2=$ `r lambda*t*(alpha^2+alpha)/beta^2`.
+
+
+```{r}
+## alpha = 2, beta = 3, lambda = 4   
+n <- 1e4
+t <-10;alpha <- 2; beta <-3 ; lambda <-4 ;
+N_t <- rpois(n, lambda*t)
+x_t <- rep(0,n)
+for (i in 1:n) {
+  y <- rgamma(N_t[i], alpha, beta)
+  x_t[i] <- sum(y)
+}
+hist(x_t)
+cat("mean:",mean(x_t))
+cat("variance:",var(x_t))
+```
+The theoretical values of $E[X(t)]$ and $Var(X(t))$ is $E[X(t)]=\lambda t E[Y_1]=\lambda t \alpha/\beta=$ `r lambda*t*alpha/beta` , $Var(X(t))=\lambda t E[Y_1^2]=\lambda t (\alpha^2+\alpha)/\beta^2=$ `r lambda*t*(alpha^2+alpha)/beta^2`.
+
+We can see that the estimate of the mean and the variance of X(10) for several choices of the parameters is close to the theoretical values.
+
+
+
+## Question
+
+Exercises 5.4, 5.9, 5.13, and 5.14 (pages 149-151, Statistical Computating with R).
+
+### Answer
+
+### 5.4: Write a function to compute a Monte Carlo estimate of the **Beta(3, 3)** cdf, and use the function to estimate F(x) for x = 0.1, 0.2, . . ., 0.9. Compare the estimates with the values returned by the pbeta function in R.
+
+
+The density function of Beta Distribution is . The function to compute a Monte Carlo estimate of the **Beta(3, 3)** cdf as follows:$\frac{1}{B(\alpha,\beta)} x^{\alpha-1} (1-x)^{\beta-1} $
+```{r}
+MC_Beta <- function(x, alpha=3, beta=3, n=1000) {
+  u <- runif(n)
+  thetahat <- numeric(length(x))
+  for (i in 1:length(x)){ 
+  thetahat[i] <- mean(x[i]* (x[i]*u)^(alpha-1)* (1-u*x[i])^(beta-1) /beta(alpha, beta))
+  }
+  thetahat
+}
+```
+
+Using the function estimate $F(x)$ for $x= 0.1,0.2,\ldots ,0.9$. And compare with **pbeta** function.
+
+```{r}
+x = seq(0.1, 0.9, 0.1)
+estimate <- round(MC_Beta(x),5)
+theoretical <- pbeta(x, 3,3)
+data.frame(estimate, theoretical,row.names = x)
+plot(x, estimate,'l',col =1,)
+lines(x, theoretical, col =2,)
+gs = c(expression((X1+X2)/2), expression((X+X^{prime})/2) )
+legend("topleft", legend = gs,
+            lwd = 2, inset = 0.02,col=1:2)
+```
+
+We can find the MC estimate value is close to the value generate from **pbeta** function in R.
+
+
+### 5.9: The Rayleigh density is 
+$$f(x) = \frac{x}{\sigma^2} e^{-x^2/(2 \sigma^2)}, x\ge 0, \sigma>0 $$ 
+Implement a function to generate samples from a Rayleigh($\sigma$) distribution, using antithetic variables. What is the percent reduction in variance of $\frac{X+X'}{2}$ compared with $\frac{X_1+X_2}{2}$ for independent $X_1, X_2$ ?
+
+I use inverse transform method to solve the problem.
+
+$$F(x) = \int_0^x \frac{t}{\sigma^2} e^{-t^2/(2\sigma^2)}=1-e^{-x^2/(2\sigma^2)}$$
+
+$$F^{-1}(u) = \left( -2\sigma^2 \log(1-u) \right)^{\frac{1}{2}},0<u<1$$.
+
+$$F^{-1}(1-u)= \left( -2\sigma^2 \log(u) \right)^{\frac{1}{2}},0<u<1 $$
+The function to generate samples from a Rayleigh(σ) distribution, using antithetic variables, as follows:
+
+```{r}
+sampling <- function(n=1, sigma = 1,antithetic = TRUE){
+  U = runif(n)
+  if (antithetic) X = sqrt(-2*log(U[1:(n)]))*sigma +  sqrt(-2*log(1-U[1:(n)]))*sigma else X = sqrt(-2*log(U))*sigma + sqrt(-2*log(U))*sigma
+  X/2
+}
+```
+
+
+```{r}
+m <- 1000
+MC1 <- sampling(n = 1000, antithetic = FALSE)
+MC2 <- sampling(n = 1000)
+print((var(MC1)-var(MC2))/var(MC1))
+```
+
+We can find the the percent reduction in variance achieve 97%.
+
+
+### 5.13: Find two importance functions $f_1$ and $f_2$ that are supported on $(1,\infty)$ and are ‘close’ to
+$$g(x)=\frac{x^2}{\sqrt{2\pi}}e^{-x^2/2}, x>1.$$
+Which of your two importance functions should produce the smaller variance in estimating 
+$$\int_1^{\infty}\frac{x^2}{\sqrt{2\pi}}e^{-x^2/2}dx$$ by importance sampling? Explain.
+
+The importance function that are supported on $(1, \infty)$ are Exponential Distribution and Normal Distribution.
+
+```{r}
+x <- seq(1, 10, .01)
+g <- x^2/sqrt(2*pi)*exp(-x^2/2) * (x > 1)
+f1 <- 1/sqrt(2*pi) *exp(-x^2/2)
+f2 <-  exp(-x)
+gs <- c(expression(g/f[1](x)==-x^2),
+            expression(g/f[2](x)==1/sqrt(2*pi)*e^{(-x^2/2)+x}))
+plot(x, g/f1, type = "l", ylab = "",
+       ylim = c(0,3.2), lwd = 2, lty = 2,col = 2)
+lines(x, g/f2, lty = 3, lwd=2,col=3)
+legend("topright", legend = gs,
+           lty = 2:3, lwd = 2, inset = 0.02,col=2:3)
+```
+
+The exponential distribution has the smaller variance. The reason is that $g/f_2$ is closer to constant which means $f_2(x)$ is closer to $g(x)$.
+
+
+### 5.14 Obtain a Monte Carlo estimate of 
+$$\int_1^{\infty} \frac{x^2}{\sqrt{2 \pi}}e^{-x^2/2}dx$$
+by importance sampling.
+
+```{r}
+m <- 10000
+est <- sd <- numeric(2)
+g <- function(x) {
+  x^2/sqrt(2*pi)*exp(-x^2/2) * (x > 1)
+}
+x <- rnorm(m) #using normal distribution f1 =1/sqrt(2*pi) *exp(-x^2/2)
+fg <- x^2 * (x>1) # g/f = x^2 (x>1)
+est[1] <- mean(fg)
+sd[1] <- sd(fg)/sqrt(m)
+x <- rexp(m, 1) #using exponential distribution f2 = e^(-x)
+fg <- g(x) / exp(-x)
+est[2] <- mean(fg)
+sd[2] <- sd(fg)/sqrt(m)
+res <- rbind(est=round(est,5), sd=round(sd,5))
+colnames(res) <- paste0('f',1:2)
+knitr::kable(res,align='c')
+```
+
+From the result we can find the exponential distribution has the smaller variance, which is consistent with 5.14. 
+
+
+
+
+
+## Question
+
+Exercises 6.5 and 6.A (page 180-181, Statistical Computating with R).
+If we obtain the powers for two methods under a particular
+
+simulation setting with 10,000 experiments: say, 0.651 for one
+method and 0.676 for another method. We want to know if the
+powers are different at 0.05 level.
+
++ I What is the corresponding hypothesis test problem?
+
++ I What test should we use? Z-test, two-sample t-test, paired-t
+test or McNemar test? Why?
+
++ I Please provide the least necessary information for hypothesis
+testing.
+
+### Answer
+
+### 6.5: Suppose a 95% symmetric t-interval is applied to estimate a mean, but the
+sample data are non-normal. Then the probability that the confidence interval
+covers the mean is not necessarily equal to 0.95. Use a Monte Carlo experiment
+to estimate the coverage probability of the t-interval for random samples of
+χ2(2) data with sample size n = 20. Compare your t-interval results with the
+simulation results in Example 6.4. (The t-interval should be more robust to
+departures from normality than the interval for variance.)
+
+
+If X 1 ,...,X n is a random sample from a chisq(2) distribution, the mean value is 2. The test statistic *t* = $\frac{\bar{x}-2}{s} \sim t(2)$, where s is the variance of sample, the t interval is $(\bar{x}-\frac{\sigma_x}{\sqrt{n-1}} t_{1-\alpha/2}(2),\bar{x}+\frac{\sigma_x}{\sqrt{n-1}} t_{1-\alpha/2}(2))$.
+```{r}
+m<-1e4
+n <-20
+alpha <- .05
+L <- U <- numeric(m)
+for(i in 1:m){
+  x <- rchisq(n, df = 2)
+  L[i] <- mean(x)-(sd(x)/sqrt(n-1)) * qt(1-alpha/2,df = n-1)
+  U[i] <- mean(x)+(sd(x)/sqrt(n-1)) * qt(1-alpha/2,df = n-1)
+}
+mean(L<2 & U>2)
+
+```
+
+Compare the t-interval results with the simulation results in Example 6.4,we find that this coverage probability of the t-interval is smaller.
+
+
+### 6.A: Use Monte Carlo simulation to investigate whether the empirical Type I error rate of the t-test is approximately equal to the nominal significance level $\alpha$, when the sampled population is non-normal. The t-test is robust to mild departures from normality. Discuss the simulation results for the cases where the sampled population is (i) χ2(1), (ii) Uniform(0,2), and (iii) Exponential(rate=1). In each case, test H0 : µ = µ0 vs H0 : µ ̸= µ0, where µ0 is the
+mean of χ2(1), Uniform(0,2), and Exponential(1), respectively.
+
+
+(i) The mean values of chisq(1),Uniform(0,2) and Exponential(1) are all 1.
+
+
+```{r}
+mu0 <- 1 # null hypothesis!
+alpha <- .05
+m <- 1e4; n <- 20; set.seed(123)
+p1 <- p2 <- p3 <- numeric(m)
+for (i in 1:m){
+  x1 <- rchisq(n,df =1)
+  x2 <- runif(n,0,2)
+  x3 <- rexp(n,1)
+  ttest1 <-  t.test(x1, alternative = "greater", mu = mu0)
+  ttest2 <-  t.test(x2, alternative = "greater", mu = mu0)
+  ttest3 <-  t.test(x3, alternative = "greater", mu = mu0)
+  p1[i] <- ttest1$p.value
+  p2[i] <- ttest2$p.value
+  p3[i] <- ttest3$p.value
+}
+
+p.hat <- c(mean(p1 < alpha), mean(p2 < alpha), mean(p3 < alpha))
+
+se.hat <- sqrt(p.hat*(1-p.hat)/m)
+
+data.frame(p.hat, se.hat,row.names = c("(i)χ2(1)", "(ii)Uniform(0,2)", "(iii)Exponential(1)"))
+```
+
+The observed Type I error rate of chisq2(1), Uniform(0,2), and Exponential(1) are 0.0133, 0.0486, 0.0189 and the  standard error of the estimate are
+0.001145561, 0.002150303, 0.001361719. The estimates of Type I error probability
+are vary ,but should be close to the nominal rate $\alpha$= 0.05. Howere ,we find  that only the Type I error probability of uniform(0,2) is close to 0.05.
+When n is large enough , the Type I error of chisq2(1) and Exponential(1) will close to 0.05.
+
+### simulation setting with 10,000 experiments: say, 0.651 for one method and 0.676 for another method. We want to know if the powers are different at 0.05 level.
+
++ I What is the corresponding hypothesis test problem?
+
++ I What test should we use? Z-test, two-sample t-test, paired-t test or McNemar test? Why?
+
++ I Please provide the least necessary information for hypothesis testing.
+
+
+(1)if we make powers for two methods under a particular simulation is p1 and p2,the corresponding hypothesis test problem is $$H_0 :p_1=p_2 \quad vs \quad H_1:p_1 \not=p_2$$
+
+(2)In my opinion,we can use Z-test, paired-t test or McNemar test, in Z-test we can make $Z_i = Y_i − X_i$,paired-t test and McNemar test are used for the analysis of paired count data, and they can analyze whether the results before and after the experiment are different.However,two-sample t-test requires the samples to be independent. Obviously, the samples in the question are the same set of samples, which cannot be independent of each other,thus we shouldn't choose it. 
+
+(3)To test my hypothesis, we need to know Sample mean,Sample var,Sample size etc, .
+
+
+
+
+## Question
+
+Exercises 6.C (pages 182, Statistical Computating with R).
+
+### Answer
+
+6.C Repeat Examples 6.8 and 6.10 for Mardia’s multivariate skewness test. Mardia [187] proposed tests of multivariate normality based on multivariate generalizations of skewness and kurtosis. If $X$ and $Y$ are iid, the multivariate population skewness $\beta_{1,d}$ is defined by Mardia as 
+$$
+\beta_{1,d} = E[(X-\mu)^T \Sigma^{-1}(Y-\mu)]^3.
+$$
+Under normality, $\beta_{1,d}=0$. The multivariate skewwness statistic is
+$$
+b_{1,d}= \frac{1}{n^2} \sum_{i,j=1}^{n}((X_i-\bar{X})^T \hat{\Sigma}^{-1} (X_j-\bar{X}))^3,
+$$
+where $\hat{\Sigma}$ is the maximum likelihood estimator of covariance. Large values of $b_{1,d}$ are significant. The asymptotic distribution of $nb_{1,d}/6$ is chisquqred with $d(d+1)(d+2)/6$ degrees of freedom.
+
+
+Example 6.8
+
+The hypotheses are
+$$
+H_0 : \sqrt{\beta_{1,d}} =0; \quad H_1 : \sqrt{\beta_{1,d}} \ne 0,
+$$
+where the sampling distribution of the skewness statistic is derived under the assumption of normality.
+Assess the Type I error rate for a skewness test of normality at $\alpha$ = 0.05 based on the asymptotic distribution of $\sqrt{b_1}$ for sample sizes n = 10, 20, 30, 50, 100, and 500.
+
+```{r}
+library(MASS) # genrate multi-normal distribution
+n <- c(10, 20, 30, 50, 100, 500) # sample size
+d <- 2 # dimension
+cv_U <- qchisq(0.975, d*(d+1)*(d+2)/6)
+cv_L <- qchisq(0.025, d*(d+1)*(d+2)/6)
+sigma <- (matrix(c(5,0,0,1),2,2))
+mu<-c(1,4)
+
+mul_sk <- function(x){
+  n <- nrow(x)
+  x_bar <- matrix(c(mean(x[,1]),mean(x[,2])),n,2, byrow=TRUE)
+  x_ <- x-x_bar
+  sigma_hat <- var(x)*(n-1)/n # MLE
+  b <- mean((x_ %*% solve(sigma_hat) %*% t(x_))^3)
+  return(n*b/6)
+}
+
+p.reject <- numeric(length(n)) #to store sim. results
+m <- 1000 #num. repl. each sim.
+
+for (i in 1:length(n)) {
+  sktests <- numeric(m) #test decisions
+  for (j in 1:m) {
+    x<-mvrnorm(n[i],mu,sigma)
+    sktests[j] <- as.integer((mul_sk(x) <=cv_L) |( mul_sk(x)>= cv_U))
+  }
+  p.reject[i] <- mean(sktests) #proportion rejected
+}
+
+print(p.reject)
+```
+
+Example 6.10
+
+For this experiment, the significance level is $\alpha$ = 0.1 and the sample size is n = 30. The skewness statistic mul_sk is implemented in Example 6.8.
+
+```{r}
+
+alpha <- .1
+n <- 30
+m <- 2500
+sigma1 <- matrix(c(5,0,0,1),2,2)
+sigma2 <- matrix(c(8,0,0,1),2,2)
+mu<-c(0,0)
+epsilon <- c(seq(0, .15, .01), seq(.15, 1, .05))
+N <- length(epsilon)
+pwr <- numeric(N) #critical value for the skewness test
+cv_U <- qchisq(1-alpha/2, d*(d+1)*(d+2)/6)
+cv_L <- qchisq(alpha/2, d*(d+1)*(d+2)/6)
+for (j in 1:N) { #for each epsilon
+  e <- epsilon[j]
+  sktests <- numeric(m)
+  for (i in 1:m) {
+  #for each replicate
+    a <- sum(sample(c(0,1), replace = TRUE,size = n, prob = c(1-e, e)))
+    if(a==0){x<-mvrnorm(n,mu,sigma1)}
+    else if(a==n){x<-mvrnorm(n,mu,sigma2)}
+    else {x1 <- mvrnorm(n-a,mu,sigma1)
+          x2 <- mvrnorm(a,mu,sigma2)
+          x <- rbind(x1,x2)
+          }
+    sktests[i] <- as.integer(mul_sk(x) <= cv_L | mul_sk(x) >=cv_U )
+  }
+  pwr[j] <- mean(sktests)
+}
+#plot power vs epsilon
+plot(epsilon, pwr, type = "b",
+xlab = bquote(epsilon), ylim = c(0,1))
+abline(h = .1, lty = 3)
+se <- sqrt(pwr * (1-pwr) / m)
+#add standard errors
+lines(epsilon, pwr+se, lty = 3)
+lines(epsilon, pwr-se, lty = 3)
+```
+
+
+
+
+## Question
+
+Exercises 7.7,7.8,7.9，and 7.B(pages 213, Statistical Computing with R)
+
+## Answer
+
+### 7.7
+Referto Exercise7.6. Efron and Tibshirani discuss the following example [84,
+Ch.7]. The ﬁve-dimensional scores data have a 5×5 covariance matrix $\Sigma$,
+with positive eigen values $\lambda_1> \cdots>\lambda5$. In principal components analysis,
+$$ 
+ \theta=\frac{\lambda_1}{\sum_{j=1}^{5} \lambda_j}
+$$
+
+measures the proportion of variance explained by the ﬁrst principal component. Let $\hat\lambda_1> \cdots>\hat\lambda5$ be the eigen values of $\hat\Sigma$,where $\hat\Sigma$ is the MLE of $\Sigma$.
+Compute the sample estimate
+$$ 
+ \hat{\theta}=\frac{\hat{\lambda_1}}{\sum_{j=1}^{5} \hat{\lambda_j}}
+$$
+of $\theta$. Use bootstrap to estimate the bias and standard error of $\hat{\theta}$.
+```{r}
+library(bootstrap)
+sigma.hat <- cov(scor)
+eig <- eigen(sigma.hat)
+theta.hat <- (eig$value[1])/sum(eig$values)
+
+B <- 200
+n <- nrow(scor)
+theta <- numeric(B)
+
+for (b in 1:B){
+  i <- sample(1:n, size=n, replace = TRUE)
+  x <- scor[i,]
+  sigma.i <- cov(x)
+  eig <- eigen(sigma.i)
+  theta[b] <- (eig$values[1])/sum(eig$values)
+}
+bias.theta <- mean(theta.hat-theta)
+se.theta <- sd(theta)
+print(list(bias = bias.theta, se=se.theta))
+```
+The results  of bootstrap are as above.
+
+### 7.8
+Refer to Exercise7.7.Obtain the jackknife estimates of bias and standard
+error of $\hat{\theta}$.
+
+```{r}
+sigma.hat <- cov(scor)
+eig <- eigen(sigma.hat)
+theta.hat <- (eig$value[1])/sum(eig$values)
+
+n <- nrow(scor)
+theta <- numeric(n)
+for (i in 1:n){
+  
+  sigma.i <- cov(scor[-i,])
+  eig <- eigen(sigma.i)
+  theta[i] <- (eig$values[1])/sum(eig$values)
+}
+
+bias.theta <- (n-1)*(mean(theta)-theta.hat)
+
+se.theta <- sqrt((n-1)*mean((theta-mean(theta))^2)) 
+
+print(list(bias = bias.theta, se=se.theta))
+
+```
+The results of jackknife are as above. Compare with Bootstrap, it has smaller bias but higer variance.
+
+### 7.9
+Refer to Exercise7.7. Compute 95% percentile and BCa conﬁdence intervals
+for $\hat{\theta}$.
+
+```{r}
+library(boot)
+sigma.hat <- cov(scor)
+eig <- eigen(sigma.hat)
+theta.hat <- (eig$value[1])/sum(eig$values)
+
+theta.boot <- function(x,ind){
+  sigma.i <- cov(x[ind,])
+  eig <- eigen(sigma.i)
+  eig$values[1] / sum(eig$values)
+}
+
+boot.obj <- boot(scor,statistic = theta.boot, R = 100)
+
+print(boot.ci(boot.obj,type=c("perc", "bca")))
+
+```
+
+
+### 7.B
+```{r}
+m=1000
+n=100
+mu=0
+t=numeric(n)
+set.seed(1234)
+library(boot)
+ci.norm=ci.basic=ci.perc=matrix(NA,m,2)
+
+sk=function(x){ 
+  x.bat = mean(x)
+  m1 = mean((x - x.bat)^3)
+  m2 = mean((x - x.bat)^2)
+  return (m1/m2^1.5)
+}
+
+boot.median=function(x,ind) sk(x[ind])
+# normal populations
+for(i in 1:m){
+
+  x=rnorm(n)
+  boot.obj=boot(data=x,statistic=boot.median,R=100)
+  ci=boot.ci(boot.obj,type = c("norm","basic","perc"))
+  ci.norm[i,]=ci$norm[2:3]
+  ci.basic[i,]=ci$basic[4:5]
+  ci.perc[i,]=ci$percent[4:5]
+  
+}
+p1.norm=c(mean(ci.norm[,1]<=mu&ci.norm[,2]>=mu),mean(ci.norm[,1]>mu),mean(ci.norm[,2]<mu))
+p1.basic=c(mean(ci.basic[,1]<=mu&ci.basic[,2]>=mu),mean(ci.basic[,1]>mu),mean(ci.basic[,2]<mu))
+p1.perc=c(mean(ci.perc[,1]<=mu&ci.perc[,2]>=mu),mean(ci.perc[,1]>mu),mean(ci.perc[,2]<mu))
+data.frame(p1.norm,p1.basic,p1.perc,row.names = c("coverage","on the left","on the right"))
+# χ2(5) distributions
+library(moments)
+mu1=(8/5)^(1/2)
+t=numeric(n)
+
+for(i in 1:m){
+
+  x=rchisq(n,5)
+  de=boot(data=x,statistic=boot.median,R=100)
+  ci=boot.ci(de,type = c("norm","basic","perc"))
+  ci.norm[i,]=ci$norm[2:3]
+  ci.basic[i,]=ci$basic[4:5]
+  ci.perc[i,]=ci$percent[4:5]
+}
+p2.norm=c(mean(ci.norm[,1]<=mu1&ci.norm[,2]>=mu1),mean(ci.norm[,1]>mu1),mean(ci.norm[,2]<mu1))
+p2.basic=c(mean(ci.basic[,1]<=mu1&ci.basic[,2]>=mu1),mean(ci.basic[,1]>mu1),mean(ci.basic[,2]<mu1))
+p2.perc=c(mean(ci.perc[,1]<=mu1&ci.perc[,2]>=mu1),mean(ci.perc[,1]>mu1),mean(ci.perc[,2]<mu1))
+data.frame(p2.norm,p2.basic,p2.perc,row.names = c("coverage","on the left","on the right"))
+```
+
+
+
+
+## Question
+
+Exercise 8.2 (page 242, Statistical Computating with R).
+
+Design experiments for evaluating the performance of the NN, energy, and ball methods in various situations.
+
++ Unequal variances and equal expectations
++ Unequal variances and unequal expectations
++ Non-normal distributions: t distribution with 1 df (heavy-tailed distribution), bimodel distribution (mixture of two normal distributions)
++ Unbalanced samples (say, 1 case versus 10 controls)
++ Note: The parameters should be chosen such that the powers are distinguishable (say, range from 0.3 to 0.8).
+
+## Answer
+
+### 8.2
+Implement the bivariate Spearman rank correlation test for independence
+[255] as a permutation test. The Spearman rank correlation test statistic can be obtained from function cor with method = "spearman". Compare the
+achieved significance level of the permutation test with the p-value reported by cor.test on the same samples.
+
+I generate two normal sample with 12 samples. They are iid. The hypothes is
+$$
+H_0: \text{the bivariate Spearman rank is not correlation}
+$$
+$$
+H_0: \text{the bivariate Spearman rank is correlation}
+$$
+```{r}
+R <- 999
+set.seed(1)
+x <- rnorm(12)
+y <- rnorm(12)
+z <- c(x,y)
+K <- 1:24
+t <- numeric(R)
+t0 <- cor(x,y,method = "spearman")
+
+for (i in(1:R)){
+  k <- sample(K, size = 12,replace = FALSE)
+  x1 <- z[k]
+  y1 <- z[-k]
+  t[i] <- cor(x1, y1, method = "spearman")
+}
+p1<- mean(c(t0,t) >= t0)
+p2<- cor.test(x,y)$p.value
+c(p1,p2)
+```
+The significance level of the permutation test of the bivariate Spearman rank correlation test is ``` p1```, the bivariate Spearman rank correlation test is ``` p2```. They both bigger than $\alpha=0.05$. So is null hypothesis is accept. What's more ,we have p1 > p2,which means significance level of the permutation test is more obvious.
+
+
+### 
+Design experiments for evaluating the performance of the NN, energy, and ball methods in various situations.
+
++ Unequal variances and equal expectations
++ Unequal variances and unequal expectations
++ Non-normal distributions: t distribution with 1 df (heavy-tailed distribution), bimodel distribution (mixture of two normal distributions)
++ Unbalanced samples (say, 1 case versus 10 controls)
++ Note: The parameters should be chosen such that the powers are distinguishable (say, range from 0.3 to 0.8).
+
+
+In the first case, I set the two variable ,x and y, have 1 and 1.5 variance,respectively.
+```{r}
+library(RANN) 
+library(boot)
+library(energy)
+library(Ball)
+
+
+Tn <- function(z, ix, sizes,k) {
+n1 <- sizes[1]; n2 <- sizes[2]; n <- n1 + n2
+if(is.vector(z)) z <- data.frame(z);
+z <- z[ix, ];
+NN <- nn2(data=z, k=k+1)
+block1 <- NN$nn.idx[1:n1,-1]
+block2 <- NN$nn.idx[(n1+1):n,-1]
+i1 <- sum(block1 <= n1); i2 <- sum(block2 > n1)
+(i1 + i2) / (k * n)
+}
+
+eqdist.nn <- function(z,sizes,k){
+  boot.obj <- boot(data=z,statistic=Tn,R=R,
+  sim = "permutation", sizes = sizes,k=k)
+  ts <- c(boot.obj$t0,boot.obj$t)
+  p.value <- mean(ts>=ts[1])
+  list(statistic=ts[1],p.value=p.value)}
+
+m <- 1000
+k <- 3
+n1 <- n2 <- 50
+R <- 99
+N <- c(n1, n2)
+p1 <- p2 <- p3 <- p4 <- p5 <- matrix(NA,m,3)
+
+#Unequal variances and equal expectations
+for(i in 1:m){
+  x1 <- matrix(rnorm(100), ncol=2)
+  y1 <- matrix(rnorm(100,sd=1.5),ncol=2)
+  z1 <- rbind(x1, y1)
+  p1[i,1]<-eqdist.nn(z1,N,k)$p.value
+  p1[i,2]<-eqdist.etest(z1,sizes=N,R=R)$p.value
+  p1[i,3]<-bd.test(x=x1,y=y1,R=R,seed=i*12345)$p.value
+}
+pow1 <- colMeans(p1<0.05)
+pow1
+```
+When unequal variances and equal expectations, the performance of three methods are all good, but the ball method is best, NN method is worst.
+
+
+In the second case, I set the two variable ,x and y, have 0 and 0.5 mean ,1 and 1.5 variance,respectively.
+```{r}
+#Unequal variances and unequal expectations
+for(i in 1:m){
+  x2 <- matrix(rnorm(100), ncol=2)
+  y2 <- matrix(rnorm(100,mean=0.5,sd=1.5),ncol=2)
+  z2 <- rbind(x2, y2)
+  p2[i,1]<-eqdist.nn(z2,N,k)$p.value
+  p2[i,2]<-eqdist.etest(z2,sizes=N,R=R)$p.value
+  p2[i,3]<-bd.test(x=x2,y=y2,R=R,seed=i*12345)$p.value
+}
+pow2 <- colMeans(p2<0.05)
+pow2
+```
+When unequal variances and unequal expectations, the performance of three methods are all good, but the ball method is best, NN method is worst.
+
+
+In the third case, I set y is the mixture of two normal distributions with 0,5 and 1 mean ,2 and 3 variance,respectively.
+
+```{r}
+#Non-normal distributions: t distribution with 1 df，bimodel distribution
+for(i in 1:m){
+  x3 <- matrix(rt(100,df=1), ncol=2)
+  y<-numeric()
+  for(j in 1:100){
+      r<-sample(c(0,1),1,replace=TRUE,prob=c(0.3,0.7))
+      y[j]<-ifelse(r==0,rnorm(1,0.5,2),rnorm(1,1,3))
+  }
+  y3<-matrix(y,ncol=2)
+  z3 <- rbind(x3, y3)
+  p3[i,1]<-eqdist.nn(z3,N,k)$p.value
+  p3[i,2]<-eqdist.etest(z3,sizes=N,R=R)$p.value
+  p3[i,3]<-bd.test(x=x3,y=y3,R=R,seed=i*12345)$p.value
+}
+pow3 <- colMeans(p3<0.05)
+pow3
+
+```
+When non-normal distributions: t distribution with 1 df，bimodel distribution, the performance of three methods are almost same, but the energy method is best, NN method is worst.
+
+
+```{r}
+#unbalanced samples
+n3<-25;n4<-250;n5 <- n3+n4;N1<-c(n3,n4)
+for(i in 1:m){
+  x4 <- matrix(rnorm(50,mean=0.5,sd=1), ncol=2)
+  y4 <- matrix(rnorm(500,mean=0.5,sd=1.5),ncol=2)
+  z4 <- rbind(x4, y4)
+  p4[i,1]<-eqdist.nn(z4,N1,k)$p.value
+  p4[i,2]<-eqdist.etest(z4,sizes=N1,R=R)$p.value
+  p4[i,3]<-bd.test(x=x4,y=y4,R=R,seed=i*12345)$p.value
+}
+pow4 <- colMeans(p4<0.05)
+pow4
+```
+When unbalanced samples, the performance of three methods are far different. NN method and energy method is very bad, but the ball method is good.
+
+
+
+
+## Question
+
++ Exercies 9.3 and 9.8 (pages 277-278, Statistical Computating with R).
++ For each of the above exercise, use the Gelman-Rubin method to monitor convergence of the chain, and run the chain until it converges approximately to the target distribution according to $\hat{R}$ < 1.2.
+
+
+## Answer
+
+### 9.3
+Use the Metropolis-Hastings sampler to generate random variables from a
+standard Cauchy distribution. Discard the first 1000 of the chain, and com-
+pare the deciles of the generated observations with the deciles of the standard Cauchy distribution (see qcauchy or qt with df=1). Recall that a Cauchy$(\theta,\eta)$ distribution has density function
+
+
+使用建议分布选正态分布$N(X_t,\sigma^2)$实现随机游动形式的Metropolis样本生成器。
+此时
+$$
+r(x_t,y)=\frac{f(Y)}{f(X_t)} =\frac{1+x_t^2}{1+y^2}
+$$
+
+
+```{r}
+set.seed(12345)
+rw.Metropolis <- function(sigma, x0, N) {
+    x <- numeric(N)
+    x[1] <- x0
+    u <- runif(N)
+    k <- 0
+    for (i in c(2:N)) {
+        y <- rnorm(1, x[i-1],sigma)
+        if (u[i] < ((1+x[i-1]^2) / (1 + y^2)))
+            x[i] <- y else {
+            x[i] <- x[i-1]
+            k <- k + 1
+        }
+    }
+    return(list(x=x, k=k))
+}
+
+N <- 10000
+sigma <- c(.05, .5, 2,  4)
+
+x0 <- 20
+
+rw1 <- rw.Metropolis( sigma[1], x0, N)
+rw2 <- rw.Metropolis( sigma[2], x0, N)
+rw3 <- rw.Metropolis( sigma[3], x0, N)
+rw4 <- rw.Metropolis( sigma[4], x0, N)
+
+#number of candidate points rejected
+# no.reject <- data.frame(theta=theta,no.reject=c(rw1$k, rw2$k, rw3$k, rw4$k))
+# # knitr::kable(no.reject)
+# no.reject
+```
+
+```{r,eval=FALSE}
+    par(mfrow=c(2,2))  #display 4 graphs together
+    refline <- qcauchy(c(.025, .975))
+    rw <- cbind(rw1$x, rw2$x, rw3$x,  rw4$x)
+    for (j in 1:4) {
+        plot(rw[,j], type="l",
+             xlab=bquote(sigma == .(round(sigma[j],3))),
+             ylab="X", ylim=range(rw[,j]))
+        abline(h=refline)
+    }
+    par(mfrow=c(1,1)) #reset to default
+    
+```
+
+* Quantiles of the generated samples
+
+```{r,eval=FALSE}
+
+    a <- c(.05, seq(.1, .9, .1), .95)
+    Q <- qcauchy(a)
+    rw <- cbind(rw1$x, rw2$x, rw3$x, rw4$x)
+    mc <- rw[501:N, ]
+    Qrw <- apply(mc, 2, function(x) quantile(x, a))
+    qq <- data.frame(round(cbind(Q, Qrw), 3))
+    names(qq) <- c('True','sigma=0.05','sigma=0.5','sigma=1','sigma=2')
+    knitr::kable(qq) #latex format
+    
+```
+可以看到，$\sigma^2=1$时的分位数与真实值比较接近。
+
+### 9.8
+This example appears in [40]. Consider the bivariate density
+$$
+f(x,y) \propto\left(\begin{array}{l}
+n \\
+x
+\end{array}\right) y^{x+a-1}(1-y)^{n-x+b-1},\ x=0,1,\ldots,n,0 \le y \le 1.
+$$
+It can be shown (see e.g. [23]) that for fixed a, b, n, the conditional distributions are Binomial($n, y$) and Beta($x + a, n − x + b$). Use the Gibbs sampler to generate a chain with target joint density $f (x, y)$.
+
+条件分布：
+$$
+f(x|y) \sim B(n,y)
+$$
+$$
+f(y|x) \sim Beta(x+a,n-x+b)
+$$
+
+```{r,echo=F}
+N <- 5000 #length of chain
+burn <- 1000 #burn-in length
+X <- matrix(0, N, 2) #the chain, a bivariate sample
+mu1=0.5
+mu2=0.5
+n = 2
+a = 1
+b = 1
+###### generate the chain #####
+
+X[1, ] <- c(mu1, mu2) #initialize
+for (i in 2:N) {
+  x2 <- X[i-1, 2]
+
+  X[i, 1] <- rbinom(1,n,x2)
+
+  x1 <- X[i, 1]
+
+  X[i, 2] <- rbeta(1,x1+a,n-x1+b)
+  
+}
+x <- X[(burn+1):N, ]
+cat('Means: ',round(colMeans(x),2))
+cat('Standard errors: ',round(apply(x,2,sd),2))
+cat('Correlation coefficients: ', round(cor(x[,1],x[,2]),2))
+```
+
+
+```{r,echo=F}
+plot(x[,1],type='l',col=1,lwd=2,xlab='Index',ylab='Random numbers')
+lines(x[,2],col=2,lwd=2)
+legend('bottomright',c(expression(X[1]),expression(X[2])),col=1:2,lwd=2)
+```
+
+
+
+## Gelman-Rubin method to monitor convergence of the chain, and run the chain until it converges approximately to the target distribution according to $\hat{R}<1.2.$
+
+### 
+```{r,echo=FALSE}
+Gelman.Rubin <- function(psi) {
+    # psi[i,j] is the statistic psi(X[i,1:j])
+    # for chain in i-th row of X
+    psi <- as.matrix(psi)
+    n <- ncol(psi)
+    k <- nrow(psi)
+
+    psi.means <- rowMeans(psi)     #row means
+    B <- n * var(psi.means)        #between variance est.
+    psi.w <- apply(psi, 1, "var")  #within variances
+    W <- mean(psi.w)               #within est.
+    v.hat <- W*(n-1)/n + (B/n)     #upper variance est.
+    r.hat <- v.hat / W             #G-R statistic
+    return(r.hat)
+    }
+```
+
+
+#### 9.3
+```{r}
+
+    sigma <- 2    #parameter of proposal distribution
+    k <- 4          #number of chains to generate
+    n <- 15000      #length of chains
+    b <- 1000       #burn-in length
+
+    #choose overdispersed initial values
+    x0 <- c(-20, -10, 10, 20)
+
+    #generate the chains
+    set.seed(2021)
+    X <- matrix(0, nrow=k, ncol=n)
+    for (i in 1:k)
+        X[i, ] <- rw.Metropolis(sigma, x0[i], n)$x
+
+    #compute diagnostic statistics
+    psi <- t(apply(X, 1, cumsum))
+    for (i in 1:nrow(psi))
+        psi[i,] <- psi[i,] / (1:ncol(psi))
+
+    #plot psi for the four chains
+#    par(mfrow=c(2,2))
+    for (i in 1:k)
+      if(i==1){
+        plot((b+1):n,psi[i, (b+1):n], type="l",
+            xlab='Index', ylab=bquote(phi))
+      }else{
+        lines(psi[i, (b+1):n], col=i)
+    }
+    par(mfrow=c(1,1)) #restore default
+```
+
+
+```{r,echo=FALSE}
+    
+    #plot the sequence of R-hat statistics
+    rhat <- rep(0, n)
+    for (j in (b+1):n)
+        rhat[j] <- Gelman.Rubin(psi[,1:j])
+    plot(rhat[(b+1):n], type="l" ,xlab="", ylab="R")
+    abline(h=1.2, lty=2)
+```
+
+可以看到$\sqrt{\hat{R}}$并未小于1.2，此时的Metropolis-Hastings链并未收敛。
+
+#### 9.8
+# ```{r}
+# library(R2OpenBUGS)
+# N <- 1e4
+# J <- nrow(schools)
+# y <- X[ ,1]
+# sigma.y <- X[ ,2]
+# data <- list ("N", "J", "x1", "x2")
+# inits <- function(){
+#   list(theta = rnorm(J, 0, 100), mu.theta = rnorm(1, 0, 100),
+#     sigma.theta = runif(1, 0, 100))
+# }
+# 
+# bugs(dta,inits = ,parameters = ,n.chains = 3, n.iter = N, codaPkg=TRUE)
+# 
+# library(coda)
+# myModel.coda <- read.bugs(schools.sim)
+# ```
+
+
+# ```{r,echo=FALSE}
+#     
+#     #plot the sequence of R-hat statistics
+#     rhat <- rep(0, n)
+#     for (j in (b+1):n)
+#         rhat[j] <- Gelman.Rubin(psi[,1:j])
+#     plot(rhat[(b+1):n], type="l",ylim = c(0,3) ,xlab="", ylab="R")
+#     abline(h=1.2, lty=2)
+#```
+未做出来。
+
+
+
+
+## Question
+
++ Exercises 11.3 and 11.5 (pages 353-354, Statistical Computing
+with R)
++ Suppose $T_1,\ldots,T_n$ are i.i.d. samples drawn from the
+exponential distribution with expectation $\lambda$. Those values greater than τ are not observed due to right censorship, so that the observed values are $Y_i = T_i I(T_i \le \tau) + \tau I(T_i > \tau),i = 1, \ldots , n.$ Suppose $\tau = 1$ and the observed $Y_i$ values are as follows:
+$$
+0.54, 0.48, 0.33, 0.43, 1.00, 1.00, 0.91, 1.00, 0.21, 0.85
+$$
+Use the E-M algorithm to estimate $\lambda$, compare your result with the observed data MLE (note: $Y_i$ follows a mixture distribution).
+
+
+## Answer
+
+### 11.3
+
+#### (a) 
+防止计算时溢出,计算$\frac{\| \boldsymbol{a} \|^{2k+2}}{(2k+1)(2k+2)}$时，先计算其对数值再用exp计算，同样使用lgamma函数计算$\frac{ \Gamma(\frac{d+1}{2}\Gamma(k+\frac{3}{2})} {k!\ \Gamma(k+d/2+1)}$,。
+```{r}
+f_k <- function(k,d,a) {
+  (-1/2)^k * exp((2*k+2)*log(norm(as.matrix(a),"F"))-log(2*k+1)-log(2*k+2)) * exp(lgamma((d+1)/2) +lgamma(k + 3/2) - lgamma(k)-lgamma(k + d/2 +1)) 
+}
+
+k<-100
+d <-200
+a <- rep(1,d)
+f_k(1,d,a)
+    
+```
+
+#### (b)
+
+```{r}
+f_sum <- function(d,a) {
+  s=0
+  k=1
+  while (TRUE) {
+  sk<- (-1/2)^k * exp((2*k+2)*log(norm(as.matrix(a),"F"))-log(2*k+1)-log(2*k+2)) * exp(lgamma((d+1)/2) +lgamma(k + 3/2) - lgamma(k)-lgamma(k + d/2 +1))
+
+  if (abs(sk) < .Machine$double.eps) {break}
+  s = s+sk
+  k=k+1
+  }
+  return(c(sum = s, k = k))
+}
+k<-100
+d <-200
+a <- rep(1,d)
+f_sum(d,a)
+
+```
+
+#### (c) 
+使用(b)中函数，当$d = 2, \boldsymbol{a}=(1,2)^T$时，计算和。
+```{r}
+d <-2
+a <- c(1,2)
+f_sum(d,a)
+
+```
+迭代24次后达到机器精度，和为-0.3025684.
+
+### 11.4
+与11.5 比较结果
+```{r}
+root=function(k){
+s1=function(a){
+  1-pt(sqrt((k-1)*a^2/(k-a^2)),k-1)
+}
+s2=function(a){
+  1-pt(sqrt(k*a^2/(k+1-a^2)),k)
+}
+f<-function(a){
+  s1(a)-s2(a)
+}
+return(uniroot(f,interval = c(1e-6,sqrt(k)-1e-6))$root)
+}
+r = sapply(c(4:25, 100, 500, 1000), function (k) {
+  root(k)
+  })
+r
+```
+
+### 11.5
+
+$$
+\frac{\Gamma(\frac{k}{2})}{\sqrt{\pi(k-1)}\Gamma(\frac{k-1}{2})}\left (1+\frac{u^2}{k-1}\right )^{-k/2}
+$$
+是自由度为$k-1$的t分布的概率密度函数。所以$2\frac{\Gamma(\frac{k}{2})}{\sqrt{\pi(k-1)}\Gamma(\frac{k-1}{2})}\int_0^{c_{k-1}}\left (1+\frac{u^2}{k-1}\right )^{-k/2}=2(P(t(k-1)<c_{k-1})-1/2)$
+
+```{r}
+find_a <- function(k){
+  
+  # S1 <-function(a){
+  #   jifen = integrate(function(u) { (1 + u^2/(k-1) )^(-k/2)},lower = 0, upper = sqrt(a^2*(k-1)/(k-a^2)) )$value
+  #   2* exp( lgamma(k/2)-lgamma( (k-1)/2) )/ sqrt(  pi*(k-1) ) * jifen
+  # }
+  # 
+  # S2 <-function(a){
+  #   jifen = integrate(function(u) { (1+u^2/k)^(-(k+1)/2)},lower = 0, upper = sqrt(a^2*k/(k+1-a^2)) )$value
+  #   2* exp( lgamma( (k+1)/2 )-lgamma(k/2) )/ sqrt( pi*k ) * jifen
+  # }
+  
+  S1 <- function(a){
+    2*( pt( sqrt(a^2*(k-1)/(k-a^2)),k-1) -1/2)
+  }
+
+  S2 <- function(a){
+    2*( pt( sqrt(a^2*k/(k+1-a^2)),k) -1/2)
+  }
+  f <- function(a) S1(a)-S2(a)
+  return(uniroot(f,interval = c(1e-6,sqrt(k)-1e-6))$root)
+}
+
+r = sapply(c(4:25, 100, 500, 1000), function (k) {
+  find_a(k)
+  })
+r
+```
+结果与11.4一致。
+
+### EM
+
+Suppose $T_1,\ldots,T_n$ are i.i.d. samples drawn from the
+exponential distribution with expectation $\lambda$. Those values greater than τ are not observed due to right censorship, so that the observed values are $Y_i = T_i I(T_i \le \tau) + \tau I(T_i > \tau),i = 1, \ldots , n.$ Suppose $\tau = 1$ and the observed $Y_i$ values are as follows:
+$$
+0.54, 0.48, 0.33, 0.43, 1.00, 1.00, 0.91, 1.00, 0.21, 0.85
+$$
+Use the E-M algorithm to estimate $\lambda$, compare your result with the observed data MLE (note: $Y_i$ follows a mixture distribution).
+
+小于1的7个数记为$X_1,\ldots,X_7$,等于1的3个数几位$Z_1,Z_2,Z_3$
+
++ MLE求解：$X_1,\ldots,X_7$是服从参数为$\lambda$的指数分布，$Z_1,Z_2,Z_3$的概率为$\int_1^{\infty}\lambda e^{-\lambda x}dx=e^{-\lambda}$.
+则似然函数为$L(\lambda)=\lambda^7 e^{-\lambda(X_1+\cdots+X_7)}(e^{-\lambda})^3$.其对数似然函数为$LL(\lambda) = 7log\lambda-\lambda \sum_i X_i -3\lambda$. 易得最大值$\hat{\lambda} = \frac{7}{\sum_i X_i +3}=28/27$。
+
++ EM求解：
+E步：
+
+$Z|X,\lambda^{i} \sim \lambda e^{-\lambda z}/e^{-\lambda},z\ge 1. \ E[Z|X,\lambda^i]= \frac{1}{e^{-\lambda}} \int_1^{\infty}\lambda^i e^{-\lambda^ix}dx=\frac{\lambda^i+1}{\lambda^i}$
+从而$Q(\lambda,\lambda^i)=E_z[logL(\lambda;X,Z)|X,\lambda^i]= 10log\lambda-\lambda \sum_i X_i - \lambda \sum_iZ_i= 10log\lambda-\lambda \sum_i X_i - \frac{\lambda^i+1}{\lambda^i}3\lambda$.
+
+M步:
+
+对$Q(\lambda,\lambda^i)$求最大值得$\lambda^{i+1} = \frac{10}{\sum_i X_i+\sum_iZ_i}=\frac{10}{\sum_iX_i+3+3/\lambda^i}$.当$\lambda$收敛时，$\lambda = \frac{10}{\sum_i X_i+3+3/\lambda}$,解得$\hat\lambda = \frac{7}{\sum_i X_i +3}=28/27$.与MLE的结果相同。
+
+```{r}
+# \sum_i X_i+3 = \sum_i Y_i
+Y =c(0.54, 0.48, 0.33, 0.43, 1.00, 1.00, 0.91, 1.00, 0.21, 0.85)
+X = c(0.54, 0.48, 0.33, 0.43, 0.91, 0.21, 0.85)
+lambda = lambda0 = 1 #inital est. for lambdas
+tol = .Machine$double.eps^0.5
+
+while (TRUE){
+  Z = rep((lambda+1)/lambda,3) #E step
+  lambda = 10/(sum(X)+sum(Z)) #M step
+  if (abs(lambda-lambda0) < tol) break
+  lambda0 = lambda
+}
+c(est = lambda,true =28/27)
+```
+可见，EM算法的结果与真实结果相同。
+
+
+
+
+
+## Question
+
++ Exercises 1 and 5 (page 204, Advanced R)
++ Excecises 1 and 7 (page 214, Advanced R)
+
+
+## Answer
+
+### Exercises 1 (page 204, Advanced R)
+Why are the following two invocations of lapply() equivalent?
+```{r}
+trims <- c(0, 0.1, 0.2, 0.5)
+x <- rcauchy(100)
+lapply(trims, function(trim) mean(x, trim = trim))
+lapply(trims, mean, x = x)
+
+```
+The first use an anonymous function varies the amount of trimming applied when computing the mean of a fixed x. The second doesn't use FUN NAME instead of FUN.
+
+
+### Exercises 5 (page 204, Advanced R)
+For each model in the previous two exercises, extract R2 using 
+the function below.
+```{r}
+rsq <- function(mod) summary(mod)$r.squared
+
+# Exercises 3 
+data(mtcars)
+
+formulas <- list(
+  mpg ~ disp,
+  mpg ~ I(1 / disp),
+  mpg ~ disp + wt,
+  mpg ~ I(1 / disp) + wt
+)
+
+models <- lapply(formulas, lm, data = mtcars)
+
+r2 <- lapply(models, rsq)
+r2
+```
+
+```{r}
+# Exercises 4
+
+bootstraps <- lapply(1:10, function(i) {
+  rows <- sample(1:nrow(mtcars), rep = TRUE)
+  mtcars[rows, ]
+})
+
+linear_model <- function(data){
+  lm(mpg ~ disp, data)
+}
+
+models <- lapply(bootstraps,linear_model)
+
+r2 <- lapply(models, rsq)
+r2
+
+```
+
+### Excecises 1 (page 214, Advanced R)
+Use vapply() to:
+
++ a) Compute the standard deviation of every column in a numeric data frame.
++ b) Compute the standard deviation of every numeric column in a mixed data frame. (Hint: you’ll need to use vapply() twice.)
+
+使用sd函数计算数值型dataframe每一列标准差
+```{r}
+# a)
+set.seed(123)
+numeric.df <- data.frame(replicate(6,sample(c(1:10),10,rep=T)))
+
+vapply(numeric.df, sd, 0)
+
+```
+使用R中的CO2数据，前3列为字符型，后两列为数值型，先用is.numeric函数判断是否为数值型，在对数值型的列使用sd函数计算列标准差
+```{r}
+# b)
+data(CO2)
+
+vapply( CO2[ vapply(CO2, is.numeric, logical(1)) ], sd, 0)
+
+```
+
+### Excecises 7 (page 214, Advanced R)
+Implement mcsapply(), a multicore version of sapply(). Can you implement mcvapply(), a parallel version of vapply()? Why or why not?
+
+下面是mcsapply()的实现,由于使用windows，mclapply()不能进行并行计算，所以使用parLapply()函数。
+```{r,eval=FALSE}
+
+library(parallel)
+cores <- detectCores()
+
+mcsapply <- function(x, f, ..., mc.cores=1L) {
+  # res <- mclapply(x, f, ...,mc.cores = mc.cores) #this can be run in linux
+  
+  cluster <- makeCluster(4)
+  clusterExport(cluster,"pause",envir = environment())
+  res <- parLapply(cluster, x, f, ...)
+  simplify2array(res)
+}
+
+
+```
+
+可以实现mcvapply()，因为vapply与lapply一样，每个迭代都是与所有其他迭代隔离的，所以它们的计算顺序并不重要，能够并型计算。
+
+
+## Question
+
++ Write an Rcpp function for Exercise 9.8 (page 278, Statistical
+Computing with R).
++ Compare the corresponding generated random numbers with
+pure R language using the function “qqplot”.
++ Campare the computation time of the two functions with the
+function “microbenchmark”.
++ Comments your results.
+
+
+## Answer
+
+### Exercise 9.8 (page 278, Statistical Computing with R)
+This example appears in [40]. Consider the bivariate density
+$$
+f(x,y) \propto\left(\begin{array}{l}
+n \\
+x
+\end{array}\right) y^{x+a-1}(1-y)^{n-x+b-1},\ x=0,1,\ldots,n,0 \le y \le 1.
+$$
+It can be shown (see e.g. [23]) that for fixed a, b, n, the conditional distributions are Binomial($n, y$) and Beta($x + a, n − x + b$). Use the Gibbs sampler to generate a chain with target joint density $f (x, y)$.
+
+Rcpp实现的代码如下
+```{r,eval=FALSE}
+// [[Rcpp::export]]
+NumericMatrix gibbsC(double a,double b,double n){
+  int N = 10000;
+  NumericMatrix X(N,2);
+  X(0,0) = 0;
+  X(0,1) = 0.5;
+  double X1, X2;
+  for(int i=1; i<N; i++){
+    X2 = X(i-1,1);
+    X(i,0) = rbinom(1,n,X2)[0];
+    X1 = X(i,0);
+    X(i,1) = rbeta(1,X1+a,n-X1+b)[0];
+  }
+  return X;
+}
+```
+
+
+
+### Compare the corresponding generated random numbers with pure R language using the function “qqplot”.
+
+R实现的9.8的代码如下
+```{r}
+gibbsR <- function(a,b,n){
+  N <- 10000          #样本量
+  X <- matrix(0, N, 2)  #样本阵
+  X[1,] <- c(0,0.5)
+  for(i in 2:N){
+    X2 <-  X[i-1, 2]
+    X[i,1] <- rbinom(1,25,X2)
+    X1 <- X[i,1]
+    X[i,2] <- rbeta(1,X1+a,25-X1+b)
+  }
+  X
+}
+```
+
+
+cpp文件要与md文件在同一路径下。对R生成随机数于Cpp生成的随机数使用qqplot比较。x,y的qqplot都接近直线说明两个语言生成的随机数相似。
+```{r,eval=FALSE}
+library(Rcpp)
+dir_cpp <- './'
+# Can create source file in Rstudio
+sourceCpp(paste0(dir_cpp,"gibbsC.cpp"))
+a=1
+b=1
+n=25
+X.R = gibbsR(a,b,n)
+X.C = gibbsC(a,b,n)
+qqplot(X.R[,1],X.C[,1])
+qqplot(X.R[,2],X.C[,2])
+```
+
+###  Compare the computation time of the two functions with the function “microbenchmark”.
+```{r,eval=FALSE}
+library(microbenchmark)
+
+ts <- microbenchmark(gibbsR=gibbsR(a,b,n),gibbsC=gibbsC(a,b,n))
+summary(ts)[,c(1,3,5,6)]
+
+```
+
+Cpp代码的运行时间要比R代码的时间快10倍左右。
+
+### Comments your results.
+
+结果很明显，Cpp代码的生成的随机数与R代码生成的随机数性能相同，但cpp运行时间要比R的时间快上10倍。
