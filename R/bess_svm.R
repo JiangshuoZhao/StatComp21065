@@ -50,6 +50,21 @@ svm_w =function(x,y,n,alpha){
   return(w)
 } # svm solver
 
+#' @title Choice the best selection feature. 
+#' @description Choice the best selection feature in svm model.
+#' @param X Data Matrix
+#' @param y True label
+#' @param T0 Nonzero feature number
+#' @param alpha Default param
+#' @param tau Default param
+#' @param max.steps max iteration step
+#' @return sparse coefficient
+#' @examples
+#' \dontrun{
+#' data <- gendata(1000,100,5)
+#' bess_svm(data$x, data$y, 5)
+#' }
+#' @export
 bess_svm=function(X,y,T0, alpha=.01, tau=0.05, max.steps=100){
   X = as.matrix(X)
   n = dim(X)[1]

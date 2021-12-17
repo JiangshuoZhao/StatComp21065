@@ -1,4 +1,17 @@
+#' @title Generate a matrix with n*p have two class.
+#' @description This function is to generate a matrix with n*p have two class for classification.
+#' @param n The number of sample.
+#' @param p The number of dimension.
+#' @param K The true dimension.
+#' @param sigma Variance of noise.
+#' @param seed Random seed.
 #' @importFrom stats rbinom rnorm
+#' @return A matriX
+#' @examples 
+#' \dontrun{
+#' data <- gendata(1000,100,5)
+#' }
+#' @export
 gendata = function(n, p, K, sigma = 0.01, seed = 1234){
   set.seed(seed)
   sigma=0.01
