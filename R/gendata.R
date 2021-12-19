@@ -1,7 +1,7 @@
 #' @title Generate a matrix with n*p have two class.
 #' @description This function is to generate a matrix with n*p have two class for classification.
 #' @param n The number of sample.
-#' @param p The number of dimension.
+#' @param p The number of feature dimension.
 #' @param K The true support set size.
 #' @param Mean The  mean of positive sample, '-Mean' is the mean of negative sample.
 #' @param Sd The sd of positive sample.

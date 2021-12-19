@@ -11,5 +11,5 @@ vignette: >
 
 ## Overview
 
-__StatComp21065__ is a simple R package developed to compare the performance of R and R++ (implemented through the R package _Rcpp_) for the 'Statistical Computing' course. Two functions are considered, namely, _gendata_ (generate two class data for classification) and _bess_svm_ (best subset selection on svm).
-## Benchmarking _vaccR_ and _vaccC_
+__StatComp21065__ is a simple R package developed to homework (implemented the code in homework.Rmd) for the 'Statistical Computing' course. There are two functions that are relevant to my research, namely, _gendata_ (generate two class data for classification) and _bess_svm_ (best subset selection on svm).
+

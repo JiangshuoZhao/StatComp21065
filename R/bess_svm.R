@@ -52,8 +52,8 @@ svm_w =function(x,y,n,alpha){
 
 #' @title Best subset selection on svm. 
 #' @description Choice the best feature subset in svm model.
-#' @param X Data Matrix
-#' @param y True label
+#' @param X Data Matrix with n*p, 
+#' @param y True label of each sample.
 #' @param T0 Fixed nonzero feature number
 #' @param alpha Penalty coefficient in svm of L2
 #' @param tau Default param of smooth hinge loss.
