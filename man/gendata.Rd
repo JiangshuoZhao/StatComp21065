@@ -4,14 +4,18 @@
 \alias{gendata}
 \title{Generate a matrix with n*p have two class.}
 \usage{
-gendata(n, p, K, sigma = 0.01, seed = 1234)
+gendata(n, p, K, Mean = 1.5, Sd = 0.75, sigma = 0.01, seed = 1234)
 }
 \arguments{
 \item{n}{The number of sample.}
 
 \item{p}{The number of dimension.}
 
-\item{K}{The true dimension.}
+\item{K}{The true support set size.}
+
+\item{Mean}{The  mean of positive sample, '-Mean' is the mean of negative sample.}
+
+\item{Sd}{The sd of positive sample.}
 
 \item{sigma}{Variance of noise.}
 

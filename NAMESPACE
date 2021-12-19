@@ -2,6 +2,7 @@
 
 export(bess_svm)
 export(gendata)
+export(gibbsC)
 importFrom(LiblineaR,LiblineaR)
 importFrom(stats,rbinom)
 importFrom(stats,rnorm)

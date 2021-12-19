@@ -2,7 +2,7 @@
 % Please edit documentation in R/bess_svm.R
 \name{bess_svm}
 \alias{bess_svm}
-\title{Choice the best selection feature.}
+\title{Best subset selection on svm.}
 \usage{
 bess_svm(X, y, T0, alpha = 0.01, tau = 0.05, max.steps = 100)
 }
@@ -11,11 +11,11 @@ bess_svm(X, y, T0, alpha = 0.01, tau = 0.05, max.steps = 100)
 
 \item{y}{True label}
 
-\item{T0}{Nonzero feature number}
+\item{T0}{Fixed nonzero feature number}
 
-\item{alpha}{Default param}
+\item{alpha}{Penalty coefficient in svm of L2}
 
-\item{tau}{Default param}
+\item{tau}{Default param of smooth hinge loss.}
 
 \item{max.steps}{max iteration step}
 }
@@ -23,7 +23,7 @@ bess_svm(X, y, T0, alpha = 0.01, tau = 0.05, max.steps = 100)
 sparse coefficient
 }
 \description{
-Choice the best selection feature in svm model.
+Choice the best feature subset in svm model.
 }
 \examples{
 \dontrun{

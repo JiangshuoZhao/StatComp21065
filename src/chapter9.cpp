@@ -1,6 +1,13 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+//' @title An Rcpp function for Exercise 9.8 (page 278, Statistical Computing with R).
+//' @description An Rcpp function for Exercise 9.8 (page 278, Statistical Computing with R).
+//' @param a A parameter the bivariate density.
+//' @param b A parameter the bivariate density.
+//' @param n A parameter the bivariate density.
+//' @return A matrix with n*2.
+//' @export
 // [[Rcpp::export]]
 NumericMatrix gibbsC(double a,double b,double n){
   int N = 10000;

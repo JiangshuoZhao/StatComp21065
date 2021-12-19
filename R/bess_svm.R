@@ -50,13 +50,13 @@ svm_w =function(x,y,n,alpha){
   return(w)
 } # svm solver
 
-#' @title Choice the best selection feature. 
-#' @description Choice the best selection feature in svm model.
+#' @title Best subset selection on svm. 
+#' @description Choice the best feature subset in svm model.
 #' @param X Data Matrix
 #' @param y True label
-#' @param T0 Nonzero feature number
-#' @param alpha Default param
-#' @param tau Default param
+#' @param T0 Fixed nonzero feature number
+#' @param alpha Penalty coefficient in svm of L2
+#' @param tau Default param of smooth hinge loss.
 #' @param max.steps max iteration step
 #' @return sparse coefficient
 #' @examples

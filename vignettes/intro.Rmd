@@ -1,6 +1,6 @@
 ---
-title: "Introduction to StatComp"
-author: "Hong Zhang"
+title: "Introduction to StatComp21065"
+author: "js Zhao"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -11,42 +11,5 @@ vignette: >
 
 ## Overview
 
-__StatComp__ is a simple R package developed to compare the performance of R and R++ (implemented through the R package _Rcpp_) for the 'Statistical Computing' course. Two functions are considered, namely, _gibbs_ (generate random nubers using Gibbs sampler) and _vacc_ (predicting the response using three variables: age, gender, and ily). For each function, both R and Rcpp versions are produced. Namely _gibbsR_ and  _vaccR_ for R and 'gibbC' and _vaccC_ for C++.
-
-The R package 'microbenchmark' can be used to benchmark the above R and C++ functions.
-
+__StatComp21065__ is a simple R package developed to compare the performance of R and R++ (implemented through the R package _Rcpp_) for the 'Statistical Computing' course. Two functions are considered, namely, _gendata_ (generate two class data for classification) and _bess_svm_ (best subset selection on svm).
 ## Benchmarking _vaccR_ and _vaccC_
-
-The source R code for _vaccR_ is as follows:
-```{r,eval=FALSE}
-function (age, female, ily) 
-{
-    p <- 0.25 + 0.3 * 1/(1 - exp(0.04 * age)) + 0.1 * ily
-    p <- p * ifelse(female, 1.25, 0.75)
-    p <- pmax(0, p)
-    p <- pmin(1, p)
-    p
-}
-```
-
-The above code involves 'ifelse', 'pmax', and 'pmin', which are known to be slow. On the other hand, the following _Rcpp_ code is much faster.
-
-```{r,eval=FALSE}
-double vacc3a(double age, bool female, bool ily){
-  double p = 0.25 + 0.3 * 1 / (1 - exp(0.04 * age)) + 0.1 * ily;
-  p = p * (female ? 1.25 : 0.75);
-  p = std::max(p, 0.0);
-  p = std::min(p, 1.0);
-  return p;
-}
-NumericVector vaccC(NumericVector age, LogicalVector female,
-                    LogicalVector ily) {
-  int n = age.size();
-  NumericVector out(n);
-  for(int i = 0; i < n; ++i) {
-    out[i] = vacc3a(age[i], female[i], ily[i]);
-  }
-  return out;
-}
-```
-
