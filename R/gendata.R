@@ -8,7 +8,7 @@
 #' @param sigma standard deviation of noise.
 #' @param seed Random seed.
 #' @importFrom stats rbinom rnorm
-#' @return A list consist of x and y. x is the sample, and y is is the corresponding category.
+#' @return A list consist of x and y. x is the data matrix, and y is is the corresponding category.
 #' @examples 
 #' \dontrun{
 #' data <- gendata(1000,100,5)

@@ -52,13 +52,13 @@ svm_w =function(x,y,n,alpha){
 
 #' @title Best subset selection on svm. 
 #' @description Choice the best feature subset in svm model.
-#' @param X Data Matrix with n*p, 
+#' @param X Data Matrix with n*p.
 #' @param y True label of each sample.
 #' @param T0 Fixed nonzero feature number
 #' @param alpha Penalty coefficient in svm of L2
 #' @param tau Default param of smooth hinge loss.
 #' @param max.steps max iteration step
-#' @return vecotr of coefficient
+#' @return list of coefficient and iteration
 #' @examples
 #' \dontrun{
 #' data <- gendata(1000,100,5)
