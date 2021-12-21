@@ -4,11 +4,11 @@
 #' @param p The number of feature dimension.
 #' @param K The true support set size.
 #' @param Mean The  mean of positive sample, '-Mean' is the mean of negative sample.
-#' @param Sd The sd of positive sample.
-#' @param sigma Variance of noise.
+#' @param Sd The standard deviation of sample.
+#' @param sigma standard deviation of noise.
 #' @param seed Random seed.
 #' @importFrom stats rbinom rnorm
-#' @return A matriX
+#' @return A list consist of x and y. x is the sample, and y is is the corresponding category.
 #' @examples 
 #' \dontrun{
 #' data <- gendata(1000,100,5)

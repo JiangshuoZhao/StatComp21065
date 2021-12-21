@@ -58,7 +58,7 @@ svm_w =function(x,y,n,alpha){
 #' @param alpha Penalty coefficient in svm of L2
 #' @param tau Default param of smooth hinge loss.
 #' @param max.steps max iteration step
-#' @return sparse coefficient
+#' @return vecotr of coefficient
 #' @examples
 #' \dontrun{
 #' data <- gendata(1000,100,5)
