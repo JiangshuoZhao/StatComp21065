@@ -81,9 +81,7 @@ bess_svm=function(X,y,T0, alpha=.01, tau=0.05, max.steps=100){
   A = b[1:T0] # Active set
   I = setdiff(E,A)
   
-  iter = 0
   for (iter in (1:max.steps)){
-    iter = iter+1
     w = d = rep(0,p)
     X_A = X[,A]
     X_A = as.matrix(X_A, nrow=n)
