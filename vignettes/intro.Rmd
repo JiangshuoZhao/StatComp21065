@@ -13,3 +13,103 @@ vignette: >
 
 __StatComp21065__ is a simple R package developed to homework (implemented the code in homework.Rmd) for the 'Statistical Computing' course. There are two functions that are relevant to my research, namely, _gendata_ (generate two class data for classification) and _bess_svm_ (best subset selection on svm).
 
+
+_gendata_ output a list, consist of a n*p data matrix and a vector of the label of sample.
+
+_bess_svm_ output a list , consist of coefficient vector and iteration.
+## using StatComp21065 _gendata_, _bess_svm_
+
+```{r}
+library(StatComp21065)
+
+data <- gendata(n =1000, p=100, K=5 ,Mean = 1.5,Sd=0.75, sigma = 0.01, seed = 1234)
+
+model <- bess_svm(X = data$x, y = data$y, T0 = 5, alpha=.01, tau=0.05, max.steps=100)
+
+```
+
+In the R code of _bess_svm_,it involves two loops, which could be very slow even for R-3.01 or any higher version. The corresponding C++ code is as follows,which used Eigen library.
+
+```{r,eval=FALSE}
+List bess_svm(Eigen::MatrixXd X, Eigen::VectorXd y, int T0, double alpha=0.01, double tau=0.05, int max_steps=100){
+  int n = X.rows();
+  int p = X.cols();
+  double max_T=0.0;
+  Eigen::MatrixXd X_(n,p);
+
+  for (int i = 0; i < n; ++i)
+  {
+    X_.row(i) = X.row(i) * y[i];
+  }
+
+  vector<int>E(p);
+  for(int k=0;k<=p-1;k++) {
+    E[k]=k;
+  }
+  vector<int>I(p-T0);
+  vector<int>A(T0);
+  vector<int>J(p-T0);
+  vector<int>B(T0);
+
+  Eigen::VectorXd w = Eigen::VectorXd::Zero(p);
+  Eigen::VectorXd w_A(T0) ;
+  Eigen::MatrixXd X_A = Eigen::MatrixXd::Zero(n, T0);
+  
+  Eigen::VectorXd d = get_d(X_,w,tau,alpha);
+  Eigen::VectorXd h = hess(X_,w,tau,alpha); // hess function
+  
+  Eigen::VectorXd delta = h.array() * (w + d).array().square(); // bd sacrifice
+  
+  
+  for(int k=0;k<=T0-1;k++) {
+    max_T = delta.maxCoeff(&A[k]); // max_T:max val , A : max_val index
+    delta(A[k])=0.0;
+  }
+  sort (A.begin(),A.end());
+  
+  set_difference(E.begin(),E.end(), A.begin(),A.end(),I.begin());
+  
+  
+  int iter=1;
+  for(iter;iter <= max_steps;iter++) {
+    
+    for(int mm=0;mm<=T0-1;mm++) {
+      X_A.col(mm)=X.col(A[mm]);
+    }
+    
+    w = Eigen::VectorXd::Zero(p);
+    d = Eigen::VectorXd::Zero(p);
+    w_A = svm_w(X_A,y,n,alpha); // svm subproblem
+    
+    for(int mm=0;mm<=T0-1;mm++) {
+        // d(A[mm])=0.0;
+        w(A[mm])=w_A(mm);
+    }
+
+    d = get_d(X_,w,tau,alpha) ;
+
+    h = hess(X_,w,tau,alpha);
+
+    delta = h.array()*(w + d).array().square(); // bd sacrifice
+    
+    for(int k=0;k<=T0-1;k++) {
+      max_T=delta.maxCoeff(&B[k]);
+      delta(B[k])=0;
+    }
+
+    sort (B.begin(), B.end());
+
+    set_difference(E.begin(),E.end(), B.begin(),B.end(),J.begin());
+
+    if(A==B) {break;} else {
+        A=B;
+        I=J;
+    }
+    
+  }
+//loss
+return List::create(Named("w")=w,Named("iter")=iter);
+}
+
+```
+
